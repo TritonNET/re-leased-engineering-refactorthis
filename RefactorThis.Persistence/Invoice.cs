@@ -1,31 +1,47 @@
+using RefactorThis.Persistence.Interfaces;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace RefactorThis.Persistence
 {
 	public class Invoice
 	{
-		private readonly InvoiceRepository _repository;
-		public Invoice( InvoiceRepository repository )
+		public Invoice()
 		{
-			_repository = repository;
-		}
+			Payments = new List<Payment>();
+        }
 
-		public void Save( )
+        public string Reference { get; set; }
+
+        public decimal Amount { get; set; }
+
+        // AmountPaid is a derived property that calculates the total amount paid based on the Payments list.
+		// This may or may want to store.
+        public decimal AmountPaid
 		{
-			_repository.SaveInvoice( this );
-		}
-
-		public decimal Amount { get; set; }
-		public decimal AmountPaid { get; set; }
+			get => Payments == null ? 0 : Payments.Sum(x => x.Amount);
+        }
+		
 		public decimal TaxAmount { get; set; }
-		public List<Payment> Payments { get; set; }
+
+		public readonly List<Payment> Payments;
 		
 		public InvoiceType Type { get; set; }
 	}
 
-	public enum InvoiceType
+    /// <summary>
+	/// Invoice types
+	/// </summary>
+    public enum InvoiceType
 	{
-		Standard,
-		Commercial
-	}
+        /// <summary>
+        /// Standard invoice type
+        /// </summary>
+        Standard,
+
+        /// <summary>
+		/// Commercial invoice type
+		/// </summary>
+        Commercial
+    }
 }

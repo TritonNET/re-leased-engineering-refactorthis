@@ -1,21 +1,41 @@
-namespace RefactorThis.Persistence {
-	public class InvoiceRepository
-	{
-		private Invoice _invoice;
+using RefactorThis.Persistence.Interfaces;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
-		public Invoice GetInvoice( string reference )
-		{
-			return _invoice;
-		}
+namespace RefactorThis.Persistence 
+{
+	public class InvoiceRepository : IInvoiceRepository
+    {
+        // This is a simple in-memory store for demonstration purposes.
+        // In a real implementation, this would interact with a database.
+        private readonly List<Invoice> _invoiceStore = new List<Invoice>();
 
-		public void SaveInvoice( Invoice invoice )
+		public Task<Invoice> GetInvoiceAsync(string reference, CancellationToken cancellationToken)
 		{
-			//saves the invoice to the database
-		}
+			return Task.FromResult(_invoiceStore.Where(inv => inv.Reference == reference).FirstOrDefault()); // Or FirstOrDefaultAsync on EF6+
+        }
 
-		public void Add( Invoice invoice )
+		public async Task SaveInvoiceAsync(Invoice invoice, CancellationToken cancellationToken)
 		{
-			_invoice = invoice;
-		}
+            // Simple drop-and-replace logic for the in-memory store.
+            // In a real implementation, this would update the record in the database.
+
+            var existingInvoice = await GetInvoiceAsync(invoice.Reference, cancellationToken);
+            if (existingInvoice != null)
+                _invoiceStore.Remove(existingInvoice);
+
+            _invoiceStore.Add(invoice);  // or AddAsync with cancellation token on EF Core
+        }
+
+		public Task AddAsync(Invoice invoice, CancellationToken cancellationToken)
+		{
+            invoice.Reference = System.Guid.NewGuid().ToString();
+
+            _invoiceStore.Add(invoice); // or AddAsync with cancellation token on EF Core
+
+            return Task.CompletedTask;
+        }
 	}
 }
