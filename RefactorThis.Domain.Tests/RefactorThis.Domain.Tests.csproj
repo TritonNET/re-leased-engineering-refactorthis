@@ -107,6 +107,7 @@
   <ItemGroup>
     <Compile Include="InvoicePaymentProcessorTests.cs" />
     <Compile Include="Mock\MockInvoiceRepository.cs" />
+    <Compile Include="Mock\MockTaxService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
